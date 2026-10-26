@@ -34,6 +34,34 @@ Example example Example example Example example Example example Example example 
 Example example Example example Example example Example example Example example Example example Example example Example example Example example Example example.
 
 \section{Propuesta de diseño}
+Para simular este fenómeno, la propuesta planteada fue realizar un sitio web donde se pueda cargar una imagen que represente al objeto
+que se quiera fotografiar y se entregue una imagen en blanco y negro que represente la fotografía tomada.
+
+Para realizar esta propuesta se decidió utilizar el lenguaje de programación Python, ya que permite a través de distintas librerias,
+convertir y crear imagenes en matrices de forma sencilla, lo cual es ideal para, por ejemplo, convertir la imagen a blanco y negro u
+obtener métricas a partir de los datos de la matriz. Además, gracias a la librería Streamlit, se puede crear fácilmente un sitio web sin tener 
+que utilizar otros lenguajes o herramientas como JavaScript o HTML.
+
+Teniendo en cuenta lo anterior, el código se dividió en varios archivos para mantener un diseño modular donde en cada archivo se encuentran
+funciones con un próposito en particular, con el fin de contar con una organización que permita fácilmente acceder, editar, agregar o
+eliminar funcionalidades. Los archivos utilizados se encuentran descritos a continuación:
+
+\subsection{pixel.py}
+Dentro de este archivo se encuentran las funciones encargadas de simular las probabilidades calculadas anteriormente, esto se logra 
+gracias a la libreria random que contiene el método \texttt{random()} que entrega un número decimal entre 0 y 1, de este modo, se creo la función
+\texttt{attempt()} que recibe como parámetro un booleano \texttt{has\_bomb} que indica si ese pixel tiene color o no (como si hubiera una bomba). 
+En el caso que \texttt{has\_bomb} sea verdadero se genera el número con random, si este número es menor que 0.5 se sabe que hay color pero se pierde como si la bomba 
+hubiera explotado, si el número es menor que 0.75 se sabe que hay color y no se pierde como si hubiera llegado a activar el sensor B, si el 
+número no cumple ninguna de las condiciones anteriores no se sabe si hay color o no como  si hubiera activado el senor A. 
+En el caso que \texttt{has\_bomb} sea falso, no se sabe si hay color o no, ya que como se explico anteriormente, siempre prenderá el sensor A
+pero eso no garantiza que no haya bomba o que no sea funcional, no hay forma de saberlo desde la perspectiva del observador.
+
+Entonces surge la pregunta, si no se puede garantizar que no haya bomba o que no sea funcional, como se logra que no se realice un ciclo infinito
+de mediciones, para esta propuesta, la respuesta es definir un máximo de intentos puesto por defecto en 10, y utilizando la segunda función del archivo
+\texttt{test\_pixel()} que también recibe el booleano \texttt{has\_bomb}, de este modo, a través de un ciclo for se prueba cada pixel hasta que el resultado sea
+"FUNCTIONAL" o "EXPLODED", o hasta que se llegue al máximo de intentos, en cuyo caso se da el pixel por incierto.
+
+
 
 \section{Evaluación de la propuesta y resultados}
 

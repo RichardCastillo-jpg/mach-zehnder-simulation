@@ -16,9 +16,9 @@ def attempt(has_bomb):
 
 def test_pixel(has_bomb):
     for _ in range(MAX_ATTEMPTS):
-        resultado = attempt(has_bomb)
-        if resultado != "UNKNOWN": 
-            return resultado
+        result = attempt(has_bomb)
+        if result != "UNKNOWN": 
+            return result
     
     return "UNKNOWN"
         
