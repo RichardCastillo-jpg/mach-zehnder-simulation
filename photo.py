@@ -1,11 +1,10 @@
 import pixel
 import numpy as np
 from PIL import Image 
-import matplotlib.pyplot as plt
 
 def load_bw_photo(file, height, width, threshold, invert):
-    size = (width, height)
     img = Image.open(file).convert("L")
+    size = (width, height)
     img = img.resize(size, Image.LANCZOS)
     photo = np.array(img)
     matrix = (photo > threshold).astype(np.float64)

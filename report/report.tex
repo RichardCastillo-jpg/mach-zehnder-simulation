@@ -19,7 +19,7 @@
 Computación Cuántica\\
 Prof. Edgar Emir González Jiménez\\
 Bogotá, Colombia\\
-21 de octubre, 2026}
+28 de octubre, 2026}
 }
 
 \maketitle
@@ -29,16 +29,72 @@ Texto del resumen...
 \end{abstract}
 
 \section{Introducción}
-Example example Example example Example example Example example Example example Example example Example example Example example Example example Example example.
+El siguiente documento contiene la implementación de una simulación del fenómeno cuántico de medición libre para obtener la
+imagen parcial de un objeto al ser fotografiado por una cámara cuántica.
 
-Example example Example example Example example Example example Example example Example example Example example Example example Example example Example example.
+Para esta problemática se realiza el supuesto de un objeto ubicado en una habitación sin luz que se quiere fotografiar, sin embargo, 
+no es posible utilizar una cámara convencional, ya que esta alteraría el estado de completa oscuridad de la habitación, por ende, es necesario 
+utilizar una cámara cuántica que logre fotografiar el objeto a través de a medición libre aplicando los conceptos del interferómetro de Mach-Zehnder
+y las bombas de Elitzur-Vaidman.
+
+Un interferómetro de Mach-Zehnder es un dispositivo sencillo para demostrar la interferencia por división de amplitud. Un haz de luz se divide primero en dos partes 
+mediante un divisor de haz por dos caminos y luego se recombina mediante un segundo divisor de haz [1]. En su lugar, una bomba de Elitzur-Vaidman es una bomba que contiene un tubo y 
+un detector de fotones, para detonar la bomba se envía un fotón a través del tubo y al ser detectado, la bomba explota, pero, si la bomba es defectuosa, el fotón no es
+detectado, simplemente atraviesa [2].
+
+Estos dos conceptos se unen al realizar una sencilla pregunta: ¿Cómo se sabe si una bomba está o no defectuosa sin hacerla explotar? La respuesta se encuentra
+al colocar la bomba dentro del interferómetro de Mach-Zehnder, si la bomba es puesta en alguno de los 2 caminos y se cuenta con dos sensores A y B surgen las siguientes posibilidades:
+\begin{enumerate}
+    \item La bomba es funcional y el fotón al pasar por el detector hace que la bomba explote.
+    \item La bomba es funcional pero el fotón no pasa por el detector, llegando al sensor A.
+    \item La bomba es funcional pero el fotón no pasa por el detector, llegando al sensor B.
+    \item La bomba no es funcional, por ende el fotón llega al sensor A.
+\end{enumerate}
+Entonces, se sabe que si el fotón llega al sensor B la bomba es completamente funcional, pero, si por el contrario llega al sensor A es imposible determinar su funcionalidad
+ya que pudo haber llegado debido a que la bomba era defectuosa o porque la bomba era funcional pero al atravesar el segundo divisor de haz tomo el camino
+hacia este sensor.
+
+Con esta información se pueden calcular las probabilidades de cada caso y obtener una cantidad aproximada de bombas funcionales en N bombas. Inicialmente, se toma el supuesto
+de que todas las bombas son funcionales, ya que en caso contrario, el fotón siempre llegaría al sensor A. A partir de este supuesto, el fotón al ser lanzado al primer divisor de haz
+toma 2 caminos con igual magnitud (50/50). En el camino que no se encuentra la bomba, tras chocar con un espejo reflector llega nuevamente a un haz divisor donde puede tomar el camino
+hacia el sensor A o hacia el sensor B, entonces, a partir de estas 2 divisiones (una en cada haz) el fotón tiene una probabilidad de 0.25 de llegar al sensor A y una probabilidad de 
+0.25 de llegar al sensor B.
+
+Se pueden complementar estas probabilidades con el caso de que tome el camino donde se encuentra la bomba, en este caso, el fotón al pasar por el detector de la bomba hace que esta explote, 
+por ende, nunca llega a un segundo divisor de haz, entonces al haber sufrido solo una división la probabilidad de que la bomba explote es de 0.5
+Sin embargo, si se quisiera saber el total exacto de bombas funcionales, habría que realizar nuevamente el experimento en todas las bombas en cuyo caso se activo el sensor A hasta que se encienda
+el sensor B o la bomba explote, de este modo, las bombas funcionales detectadas sin explotar la bomba corresponderían al 25\% del 25\% y si se realiza nuevamente el experimento sería el 
+25\% del 25\% del 25\% y así continuamente con cada nuevo experimento. Por consiguiente, si se tiene un número N de bombas, la cantidad de bombas funcionales detectadas corresponderá a la sumatoria desde 1 hasta N
+de 0.25 elevado a la N:
+\[
+\sum_{n=1}^{N} \frac{1}{4^n}
+\]
+
+Esta expresión corresponde a una serie geométrica infinita, por lo que se puede resolver con la fórmula:
+\[
+S = \frac{a}{1-r}
+\]
+Donde a corresponde al primer término de la serie mientras que r corresponde a la razón, entonces, la cantidad final de bombas funcionales se calcula como:
+\[
+S=\frac{\frac{1}{4}}{1-\frac{1}{4}}=\frac{1}{3}
+\]
+
+En el caso de las bombas explotadas, también se puede usar una serie geométrica pero sustancialmente diferente, ya que en este caso, por ejemplo, en un segundo experimento
+no es el 25\% del 25\%, sino el 50\% del 25\%, entonces el primer término corresponde a 1/2 y la razón a 1/4, dando la serie:
+\[
+\sum_{n=1}^{N} (\frac{1}{2})\frac{1}{4^{n-1}}
+\]
+\[
+S=\frac{\frac{1}{2}}{1-\frac{1}{4}}=\frac{2}{3}
+\]
+
 
 \section{Propuesta de diseño}
 Para simular este fenómeno, la propuesta planteada fue realizar un sitio web donde se pueda cargar una imagen que represente al objeto
 que se quiera fotografiar y se entregue una imagen en blanco y negro que represente la fotografía tomada.
 
 Para realizar esta propuesta se decidió utilizar el lenguaje de programación Python, ya que permite a través de distintas librerias,
-convertir y crear imagenes en matrices de forma sencilla, lo cual es ideal para, por ejemplo, convertir la imagen a blanco y negro u
+convertir y crear imágenes en matrices de forma sencilla, lo cual es ideal para, por ejemplo, convertir la imagen a blanco y negro u
 obtener métricas a partir de los datos de la matriz. Además, gracias a la librería Streamlit, se puede crear fácilmente un sitio web sin tener 
 que utilizar otros lenguajes o herramientas como JavaScript o HTML.
 
@@ -50,9 +106,10 @@ eliminar funcionalidades. Los archivos utilizados se encuentran descritos a cont
 Dentro de este archivo se encuentran las funciones encargadas de simular las probabilidades calculadas anteriormente, esto se logra 
 gracias a la libreria random que contiene el método \texttt{random()} que entrega un número decimal entre 0 y 1, de este modo, se creo la función
 \texttt{attempt()} que recibe como parámetro un booleano \texttt{has\_bomb} que indica si ese pixel tiene color o no (como si hubiera una bomba). 
+
 En el caso que \texttt{has\_bomb} sea verdadero se genera el número con random, si este número es menor que 0.5 se sabe que hay color pero se pierde como si la bomba 
-hubiera explotado, si el número es menor que 0.75 se sabe que hay color y no se pierde como si hubiera llegado a activar el sensor B, si el 
-número no cumple ninguna de las condiciones anteriores no se sabe si hay color o no como  si hubiera activado el senor A. 
+hubiera explotado, si el número es menor que 0.75 se sabe que hay color y no se pierde, como si hubiera llegado a activar el sensor B, si el 
+número no cumple ninguna de las condiciones anteriores no se sabe si hay color o no, como si hubiera activado el senor A. 
 En el caso que \texttt{has\_bomb} sea falso, no se sabe si hay color o no, ya que como se explico anteriormente, siempre prenderá el sensor A
 pero eso no garantiza que no haya bomba o que no sea funcional, no hay forma de saberlo desde la perspectiva del observador.
 
@@ -61,9 +118,80 @@ de mediciones, para esta propuesta, la respuesta es definir un máximo de intent
 \texttt{test\_pixel()} que también recibe el booleano \texttt{has\_bomb}, de este modo, a través de un ciclo for se prueba cada pixel hasta que el resultado sea
 "FUNCTIONAL" o "EXPLODED", o hasta que se llegue al máximo de intentos, en cuyo caso se da el pixel por incierto.
 
+\subsection{photo.py}
+La primera función de este archivo es \texttt{load\_bw\_photo()} que recibe como parámetros \texttt{file, height, width, threshold, invert}. El parámetro
+file se refiere a la imagen que se recibira en el sitio web y esta imagen se pasa a blanco y negro gracias a la función \texttt{convert("L")} de Image.
 
+Con la imagen convertida en blanco y negro, se ajusta el tamaño en base a la altura y el ancho recibidos por parámetro, esto se hace con el fin de que
+en caso de cargar imágenes muy grandes (por ejemplo: 3000x4000) se genere una versión reducida para la simulación, evitando que la página se demore al tener 
+que procesar todos los píxeles.
+
+Utilizando la librería numpy se transforma la imagen en blanco y negro a una matriz a través de la función \texttt{array()}, en esta matriz cada dato tiene un
+valor entre 0 (negro) y 255 (blanco), al comparar estos valores contra el umbral pasado por parámetro, se crea una nueva matriz donde cada pixel que tenga un valor
+mayor al umbral se guardará como 1, en caso contrario como 0.
+
+Si el booleano invert es verdadero, se realiza la operación 1 - matrix, de modo que, todos los unos de la matriz se vuelven ceros y todos los ceros
+se vuelven unos. Finalmente, la función retorna la nueva matriz de 0 y 1.
+
+La segunda función del archivo es \texttt{new\_photo()} que recibe la matriz creada en la función anterior. Inicialmente se crea una nueva matriz utilizando la función de
+numpy \texttt{zeros()} que inicializa cada dato de la matriz en0. A continuación, se recorre en paralelo ambas matrices, llamando a la función \texttt{test\_pixel()} por cada dato
+de la matriz inicial (utilizando el booleano x == 1 como parámetro para la función), en caso de que la función test retorne que la bomba es funcional se cambia el valor
+de ese pixel en la nueva matriz por 1.
+
+Entonces, todo dato de nueva la matriz que tenga el valor de 1 es un pixel representado por una bomba funcional (equivalente a que haya encendido el sensor B), mientras que,
+todo dato que tenga el valor de 0 serán pixeles que no se pudo determinar su funcionalidad o pixeles donde la bomba haya explotado, dado que aunque se sabe que en ese pixel
+había una bomba funcional al haber explotado es como si esa información se hubiera perdido.
+
+\subsection{metrics.py}
+Este archivo contiene una única función \texttt{calculate()} que recibe como parámetros la matriz original y la nueva matriz generada. Utilizando la función \texttt{sum()} de numpy
+se puede obtener el número total de bombas iniciales, esto es posible debido a que todos los pixeles de la matriz origianl donde hay una bomba están representados por el número 1, del mismo modo,
+este método se puede aplicar para contar las bombas detectadas al aplicar \texttt{sum()} en la nueva matriz. Finalmente, la proporción se calcula como la cantidad de bombas totales sobre la 
+cantidad de bombas detectadas.
+
+\subsection{server.py}
+Como se mencionó anteriormente, para la creación de la página web se decidió utilizar la librería Streamlit, ya que permite crear una página web a partir de código directamente en python,
+permitiendo que las funciones definidas en los demás archivos puedan ser usadas directamente sin preocuparse por una conexión Front-Backend, por esta razón, este último archivo únicamente esta 
+encargado de definir que se muestra en la página web, esto incluye los controladores que podrá utilizar el usuario para cargar la imagen y ajustar valores como el umbral o la altura de la nueva imagen.
+
+De esta forma, el flujo final de la página es: 
+\begin{enumerate}
+    \item Se le pide al usuario cargar una imagen en formato png, jpg o jpeg.
+    \item Una vez cargada la imagen se muestran los controladores para: Umbral, altura, ancho y un botón para invertir los colores
+    \item Internamente, al cargar la imagen o al ajustar el valor de cualquiera de los controladores anteriores, se crea la imagen en blanco y negro
+        y a partir de esta imagen se realiza la simulación para obtener la "fotografía tomada sin luz".
+    \item Se muestra en pantalla cada imagen: la original, la imagen en blanco y negro, y la imagen de la fotografía sin luz. Esto se logra gracias a la
+        función \texttt{image()} de Streamlit, que acepta como parámetro tanto los archivos cargados en png, jpg o jpeg como matrices para mostrar las imágenes.
+    \item Sobre la matriz generada para crear la imagen en blanco y negro y la matriz generada para crear la imagen de la nueva fotografía sin luz se calculan las 
+        métricas mencionadas anteriormente, y se muestran en pantalla con la función \texttt{metric()} de Streamlit.
+\end{enumerate}
 
 \section{Evaluación de la propuesta y resultados}
+La propuesta de solución ofrece una aproximación a una posible medición sin interacción utilizando una cámara cuántica, sin embargo, cuenta con algunas limitaciones
+que valen la pena remarcar. 
+
+En primer lugar, la falta de colores, esta propuesta requiere que el objeto fotografiado este representado por una imagen en blanco y negro
+para asignar valores de 0 o 1, una mejora a futuro podría ser implementar colores a través de distintos métodos como pasar el pixel 3 veces por el 
+interferómetro por cada valor RGB. 
+
+En segundo lugar, relacionado con el punto anterior esta la pérdida de información, al solo contar con píxeles blancos o negros, no existe un valor
+diferencial entre una bomba explotada o una que no se pudo determinar su funcionalidad, en su lugar, ambas se representan por píxeles negros (por cero
+en la matriz).
+
+Finalmente, la conversión a blanco y negro depende de un umbral que debe ajustarse según la imagen: si esta contiene varios tonos oscuros similares, algunos pueden quedar 
+por encima del umbral y otros por debajo, de modo que píxeles casi idénticos terminan con valores distintos y la figura reconstruida se aleja de la imagen original.
+
+\subsection{Casos de prueba}
+A consciencia de las limitaciones anteriores, se plantean los siguientes casos de prueba para comprobar la funcionalidad de la propuesta planteada:
+\begin{enumerate}
+    \item Imagen con valores por defecto: Cargar una imagen y comprobar el resultado sin modificar los valores de los controladores de altura, ancho, umbral e inversión.
+    \item Imagen con color invertido: Cargar una imagen y comprobar el resultado únicamente activando el color invertido.
+    \item Imagen con tamaño ampliado: Cargar una imagen y ampliar tanto altura como ancho (700x700) para comprobar el aumento en el número de bombas totales.
+    \item Imagen con tamaño disminuido: Cargar una imagen y disminuir tanto altura como ancho (64x64) para comprobar la disminución en el número de bombas totales.
+    \item Imagen con umbral reducido: Cargar una imagen y comprobar el resultado con un umbral con un valor bastante bajo (<90).
+    \item Imagen con umbral aumentado: Cargar una imagen y comprobar el resultado con un umbral con un valor bastante alto (>150).
+\end{enumerate}
+ 
+
 
 \section{Análisis de resultados}
 
