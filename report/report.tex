@@ -1,5 +1,7 @@
 \documentclass[conference]{IEEEtran}
 \usepackage{cite}
+\usepackage{url}
+\usepackage{float}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{tabularx}
@@ -25,7 +27,11 @@ Bogotá, Colombia\\
 \maketitle
 
 \begin{abstract}
-Texto del resumen...
+Este trabajo presenta la implementación de una simulación del fenómeno cuántico de medición libre para obtener una imagen parcial de un objeto en completa oscuridad, tomando 
+como referencia en el interferómetro de Mach-Zehnder y las bombas de Elitzur-Vaidman. Se desarrolla una aplicación web en Python con Streamlit que convierte una imagen a 
+blanco y negro y simula el proceso de detección cuántica píxel a píxel y para generar la fotografía tomada por la cámara cuántica. Los resultados experimentales confirman que 
+la proporción de píxeles detectados se aproxima a 1/3, coincidiendo con los cálculos de series geométricas, independientemente de factores como el tamaño de la imagen o la 
+    inversión de colores. Se discuten las limitaciones de la implementación, principalmente la ausencia de color, y se proponen futuras mejoras.
 \end{abstract}
 
 \section{Introducción}
@@ -118,6 +124,13 @@ de mediciones, para esta propuesta, la respuesta es definir un máximo de intent
 \texttt{test\_pixel()} que también recibe el booleano \texttt{has\_bomb}, de este modo, a través de un ciclo for se prueba cada pixel hasta que el resultado sea
 "FUNCTIONAL" o "EXPLODED", o hasta que se llegue al máximo de intentos, en cuyo caso se da el pixel por incierto.
 
+Para consultar a detalle este archivo, véase la figura 1.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\columnwidth]{pixel.png}
+    \caption{Archivo pixel.py}
+\end{figure}
+
 \subsection{photo.py}
 La primera función de este archivo es \texttt{load\_bw\_photo()} que recibe como parámetros \texttt{file, height, width, threshold, invert}. El parámetro
 file se refiere a la imagen que se recibira en el sitio web y esta imagen se pasa a blanco y negro gracias a la función \texttt{convert("L")} de Image.
@@ -134,19 +147,33 @@ Si el booleano invert es verdadero, se realiza la operación 1 - matrix, de modo
 se vuelven unos. Finalmente, la función retorna la nueva matriz de 0 y 1.
 
 La segunda función del archivo es \texttt{new\_photo()} que recibe la matriz creada en la función anterior. Inicialmente se crea una nueva matriz utilizando la función de
-numpy \texttt{zeros()} que inicializa cada dato de la matriz en0. A continuación, se recorre en paralelo ambas matrices, llamando a la función \texttt{test\_pixel()} por cada dato
+numpy \texttt{zeros()} que inicializa cada dato de la matriz en 0. A continuación, se recorre en paralelo ambas matrices, llamando a la función \texttt{test\_pixel()} por cada dato
 de la matriz inicial (utilizando el booleano x == 1 como parámetro para la función), en caso de que la función test retorne que la bomba es funcional se cambia el valor
 de ese pixel en la nueva matriz por 1.
 
 Entonces, todo dato de nueva la matriz que tenga el valor de 1 es un pixel representado por una bomba funcional (equivalente a que haya encendido el sensor B), mientras que,
 todo dato que tenga el valor de 0 serán pixeles que no se pudo determinar su funcionalidad o pixeles donde la bomba haya explotado, dado que aunque se sabe que en ese pixel
-había una bomba funcional al haber explotado es como si esa información se hubiera perdido.
+había una bomba funcional al haber explotado es como si esa información se hubiera perdido. 
+
+Para consultar a detalle este archivo, véase la figura 2.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{photo.png}
+    \caption{Archivo photo.py}
+\end{figure}
 
 \subsection{metrics.py}
 Este archivo contiene una única función \texttt{calculate()} que recibe como parámetros la matriz original y la nueva matriz generada. Utilizando la función \texttt{sum()} de numpy
 se puede obtener el número total de bombas iniciales, esto es posible debido a que todos los pixeles de la matriz origianl donde hay una bomba están representados por el número 1, del mismo modo,
 este método se puede aplicar para contar las bombas detectadas al aplicar \texttt{sum()} en la nueva matriz. Finalmente, la proporción se calcula como la cantidad de bombas totales sobre la 
 cantidad de bombas detectadas.
+
+Para consultar a detalle este archivo, véase la figura 3.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{metrics.png}
+    \caption{Archivo metrics.py}
+\end{figure}
 
 \subsection{server.py}
 Como se mencionó anteriormente, para la creación de la página web se decidió utilizar la librería Streamlit, ya que permite crear una página web a partir de código directamente en python,
@@ -158,12 +185,22 @@ De esta forma, el flujo final de la página es:
     \item Se le pide al usuario cargar una imagen en formato png, jpg o jpeg.
     \item Una vez cargada la imagen se muestran los controladores para: Umbral, altura, ancho y un botón para invertir los colores
     \item Internamente, al cargar la imagen o al ajustar el valor de cualquiera de los controladores anteriores, se crea la imagen en blanco y negro
-        y a partir de esta imagen se realiza la simulación para obtener la "fotografía tomada sin luz".
+        y a partir de esta imagen se realiza la simulación para obtener la fotografía tomada sin luz.
     \item Se muestra en pantalla cada imagen: la original, la imagen en blanco y negro, y la imagen de la fotografía sin luz. Esto se logra gracias a la
         función \texttt{image()} de Streamlit, que acepta como parámetro tanto los archivos cargados en png, jpg o jpeg como matrices para mostrar las imágenes.
     \item Sobre la matriz generada para crear la imagen en blanco y negro y la matriz generada para crear la imagen de la nueva fotografía sin luz se calculan las 
         métricas mencionadas anteriormente, y se muestran en pantalla con la función \texttt{metric()} de Streamlit.
 \end{enumerate}
+
+Para consultar a detalle este archivo, véase la figura 4.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{server.png}
+    \caption{Archivo server.py}
+\end{figure}
+
+\subsection{Repositorio}
+Para revisar y ejecutar la implementación, el código completo junto a la documentación está disponible en: \url{https://github.com/RichardCastillo-jpg/mach-zehnder-simulation}
 
 \section{Evaluación de la propuesta y resultados}
 La propuesta de solución ofrece una aproximación a una posible medición sin interacción utilizando una cámara cuántica, sin embargo, cuenta con algunas limitaciones
@@ -190,21 +227,101 @@ A consciencia de las limitaciones anteriores, se plantean los siguientes casos d
     \item Imagen con umbral reducido: Cargar una imagen y comprobar el resultado con un umbral con un valor bastante bajo (<90).
     \item Imagen con umbral aumentado: Cargar una imagen y comprobar el resultado con un umbral con un valor bastante alto (>150).
 \end{enumerate}
+
+\subsection{Resultados}
+\begin{enumerate}
+    \item Imagen con valores por defecto.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{caso1.png}
+        \caption{Primer caso.}
+        \label{fig:caso1}
+    \end{figure}
+    \item Imagen con color invertido.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{caso2.png}
+        \caption{Segundo caso.}
+        \label{fig:caso2}
+    \end{figure}
+    \item Imagen con tamaño ampliado.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{caso3.png}
+        \caption{Tercer caso.}
+        \label{fig:caso3}
+    \end{figure}
+    \item Imagen con tamaño disminuido.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{caso4.png}
+        \caption{Cuarto caso.}
+        \label{fig:caso4}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{positron_caso_4.jpg}
+        \caption{Fotografía cuarto caso.}
+        \label{fig:foto4}
+    \end{figure}
+    \item Imagen con umbral reducido.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{caso5.png}
+        \caption{Quinto caso.}
+        \label{fig:caso5}
+    \end{figure}
+    \item Imagen con umbral aumentado.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\columnwidth]{caso6.png}
+        \caption{Sexto caso.}
+        \label{fig:caso6}
+    \end{figure}
+\end{enumerate}
  
 
-
 \section{Análisis de resultados}
+Como se puede observar, en todos los casos siempre se cumple que la proporción de bombas funcionales detectadas (pixeles con valor 1 en la matriz de la "fotografía cuántica")
+sobre bombas funcionales totales (pixeles con valor 1 en la matriz de la imagen en blanco y negro) corresponde a un valor muy cercano a 1/3, esto verifica la correcta funcionalidad
+del programa, cumpliendo con la proporción esperada según los cálculos planteados en la introducción.
+
+En el caso 2 (véase la figura 6), en este ejemplo particular, debido a que la fotografía contaba con más tonalidades oscuras, al invertir los colores, el número de píxeles blancos (el número de bombas)
+aumentó de 13398 (véase la figura 5) a 26602, casi el doble, este resultado es coherente con el funcionamiento del programa, además mantuvo la proporción cercana a 1/3, lo que demuestra que esta proporción efectivamente
+depende del cálculo realizado en la función \texttt{test\_pixel()} y no del contenido de la imagen.
+
+En el caso 3 (véase la figura 7), al aumentar el tamaño a 700×700 la matriz contiene 490000 píxeles, con 163736 bombas totales, de las cuales se detectaron 54460, de este modo, la proporción detectada se mantiene cerca de 1/3,
+pero al haber más puntos de muestreo, el patrón del objeto resulta más reconocible en la imagen cuántica. En contraste, en el caso 4 (véase la figura 8), con un tamaño de 64×64 solo hay 4096 píxeles, 
+con 1371 bombas totales y 479 bombas detectadas. Aunque la proporción también se cumple, el número de puntos recuperados es tan bajo que el objeto se vuelve casi indistinguible (véase la figura 9).
+
+En el caso 5 (véase la figura 10), al reducir el umbral a un valor menor a 90, un mayor número de píxeles supera el umbral y pasa a valer 1 en la matriz de la imagen en blanco y negro, por lo que el total de bombas aumentó a 24961
+de las cuales se detectaron 8263. En el caso 6 (véase la figura 11), al aumentarlo a un valor mayor a 150 ocurrió lo contrario, menos píxeles superan el umbral y el total de bombas disminuyó a 6824 con 2276 detectadas. 
+En ambos casos la proporción de bombas detectadas se mantiene cerca de 1/3, lo que confirma que el umbral modifica la cantidad de bombas pero no altera la eficacia del algoritmo. Sin embargo, el umbral sí condiciona la calidad de la imagen,
+en este caso, detalles como la 'H' en el objeto son mucho más notables cuando el umbral es bajo ya que la imagen se ve menos saturada, sin embargo, por el contrario, el contraste de la imagen al aumentar el umbral permite detallar
+por ejemplo la base del objeto mucho más fácil que en la imagen con menor umbral. Esto muestra que no hay un umbral perfecto y depende en gran medida de la imagen como se mencionó en las limitaciones.
+
 
 \section{Conclusiones}
+El experimento de medición libre para obtener una imagen parcial de un objeto utilizando una cámara cuántica permite comprender el funcionamiento del interferómetro de Mach-Zehnder junto a las bombas de Elitzur-Vaidman, en consecuencia,
+entender el fenómeno permitió plantear una solución aproximada dentro de un programa en python que obtiene una imagen que simula la fotografía que podría obtenerse con la cámara cuántica.
 
-\begin{thebibliography}{1}
+Se demostró que esta implementación mantiene una proporción coherente con los cálculos de la serie geométrica utilizada para saber el número de bombas que se pueden detectar de una cantidad N de bombas funcionales, además, esta proporción 
+es independiente de variables como el tamaño de la matriz, el valor del umbral e incluso la inversión de colores. En relación con esto último, se probó que estos valores pueden afectar a la imagen final obtenida en términos de que tan similar 
+es a la imagen original, aumentar valores como el tamaño de la matriz y ajustar el umbral en base a los tonalidades de la imagen ayudan a obtener una fotografía mucho más detallada y fidedigna.
 
-\bibitem{ejemplo2020}
-A. Apellido and A. Otro, ``Título del artículo,'' \emph{Physical Review A}, vol. 101, pp. 012345, 2020.
+Sin embargo, la implementación sigue contando con varias limitaciones, principalmente relacionadas al color, esto sirve como una guía a futuro para ampliar el código y permitir probar cada píxel según sus tonalidades rojas, verdes y azules, en lugar
+de  utilizar simplemente una imagen en blanco y negro.
+
+\begin{thebibliography}{2}
+
+\bibitem{zetie2000}
+K. P. Zetie, S. F. Adams, and R. M. Tocknell, ``How does a Mach--Zehnder interferometer work?,'' \emph{Phys. Educ.}, vol. 35, no. 1, pp. 46--48, Jan. 2000, doi: 10.1088/0031-9120/35/1/308.
+
+\bibitem{mit804}
+B. Zwiebach, ``Elitzur-Vaidman bombs,'' \emph{8.04 Quantum Physics I}, MIT OpenCourseWare, Spring 2016. [En línea]. Disponible: \url{https://ocw.mit.edu/courses/8-04-quantum-physics-i-spring-2016/resources/elitzur-vaidman-bombs/}.
 
 \end{thebibliography}
 
 
 \end{document}
-
 
